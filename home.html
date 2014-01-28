@@ -180,32 +180,68 @@ function init_robot_joints() {
 function my_animate() {
 
     // CS148: INITIAL GETTING FAMILIAR CODE  (START HERE)
-
-    // keyboard is threejs helper for reading keyboard state
-    if (keyboard.pressed("x")) 
-        textbar.innerHTML = "moving up";  // make the pieces move up
-    else if (keyboard.pressed("z")) 
-        textbar.innerHTML = "zzzzzz";  // stop jittering the pieces
-    else {
-        // make the pieces jitter, and say something interesting
-    }
-
-    // jsmat is how we will represent matrices with index notation
+ 	// jsmat is how we will represent matrices with index notation
     // such that matrix[row][column] is the indexing
-    var jsmat = [
+
+		
+	var jsmat = [
                 [1, 0, 0, 0],
                 [0, 1, 0, 0],
                 [0, 0, 1, 0],
                 [0, 0, 0, 1] 
     ];
 
-    var spacing = 0.9;  // variables declared with "var" are local 
+
+    if( typeof my_animate.state == 'undefined' ) // hold the current state of pieces as data in the function object itself
+		my_animate.state = jsmat;
+		
+    // keyboard is threejs helper for reading keyboard state
+    if (keyboard.pressed("w"))
+    { 
+        textbar.innerHTML = "moving up";  // make the pieces move up
+		jsmat[1][3] = my_animate.state[1][3] + .1;
+		jsmat[2][3] = my_animate.state[2][3];
+	 	my_animate.state = jsmat;
+	}	
+    else if (keyboard.pressed("x")) 
+    {    
+		textbar.innerHTML = "pieces stopped";  // stop jittering the pieces
+		jsmat[1][3] = my_animate.state[1][3];
+		jsmat[2][3] = my_animate.state[2][3];		
+	}
+	else if (keyboard.pressed("s"))
+	{
+		textbar.innerHTML = "moving down"; // move pieces down
+		jsmat[1][3] = my_animate.state[1][3] - .1;
+		jsmat[2][3] = my_animate.state[2][3];
+		my_animate.state = jsmat;
+	}
+	else if (keyboard.pressed("d"))
+	{
+		textbar.innerHTML = "moving left"; // move left (whatever direction that is)
+		jsmat[1][3] = my_animate.state[1][3];
+		jsmat[2][3] = my_animate.state[2][3] + .1;
+		my_animate.state = jsmat;
+	}
+	else if (keyboard.pressed("a"))	  
+	{
+		textbar.innerHTML = "moving right"; // move left (whatever direction that is)
+		jsmat[1][3] = my_animate.state[1][3];
+		jsmat[2][3] = my_animate.state[2][3] - .1;	
+		my_animate.state = jsmat;
+	}
+    else 
+	{
+		textbar.innerHTML = "pieces jittering";
+        jsmat[1][3] = my_animate.state[1][3] + Math.random()*0.02;
+		jsmat[2][3] = my_animate.state[2][3] + Math.random()*0.02;
+    }
+
+       var spacing = 0.9;  // variables declared with "var" are local 
 
     // dirty way to get number of keys in an object
     jsmat[0][3] = -Object.keys(robot.joints).length*spacing/2;  
     for (x in robot.joints) {
-        jsmat[1][3] = 2+Math.random()*0.02;  // Math object has lots of helpful functions
-        jsmat[2][3] = Math.random()*0.02;
         threemat = matrix_2Darray_to_threejs(jsmat); 
         simpleApplyMatrix(robot.joints[x].geom,threemat);
         jsmat[0][3] += spacing;
@@ -213,12 +249,11 @@ function my_animate() {
 
     jsmat[0][3] = -Object.keys(robot.joints).length*spacing/2;
     for (x in robot.links) {
-        jsmat[1][3] = 1+Math.random()*0.02;
-        jsmat[2][3] = Math.random()*0.02;
         threemat = matrix_2Darray_to_threejs(jsmat);
         simpleApplyMatrix(robot.links[x].geom,threemat);
         jsmat[0][3] += spacing;
     } 
+	
 
 
     // CS148: INITIAL GETTING FAMILIAR CODE  (END)
