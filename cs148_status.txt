@@ -1,0 +1,5 @@
+3: Eric Jang 
+ 
+ Assignment 1: CHECK 
+ can you also make the pieces move up incrementally while x is pressed? 
+ github will translate Assignment
