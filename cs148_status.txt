@@ -1,0 +1,8 @@
+6: Michael Lazos 
+ 
+ Assignment 1: CHECK 
+ named branch properly, cloned on first attempt 
+ github will translate 'Assignment 1' into 'Assignment-1'. Please use 'Assignment-X' for branching of Assignment X
+ branch lables are case sensitive
+ 
+
