@@ -17,7 +17,7 @@ robot.origin = {xyz: [0,0,0], rpy:[0,0,0]};
 robot.base = "link1";  
 
 // specify and create data objects for the links of the robot
-robot.links = {"link1": {}, "link2": {}, "link3": {}, "link4": {} };
+robot.links = {"link1": { children: [] }, "link2": { children: [] }, "link3": {children: []}, "link4": {children : []} };
 
 //////////////////////////////////////////////////
 /////     DEFINE JOINTS AND KINEMATIC HIERARCHY

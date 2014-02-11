@@ -19,12 +19,12 @@ robot.base = "base";
         
 // specify and create data objects for the links of the robot
 robot.links = {
-    "base": {},  
-    "clavicle_right": {}, 
-    "clavicle_left": {} , 
-    "shoulder_right": {}, 
-    "upperarm_right": {}, 
-    "forearm_right": {} 
+    "base": { },  
+    "clavicle_right": { }, 
+    "clavicle_left": { } , 
+    "shoulder_right": { }, 
+    "upperarm_right": { }, 
+    "forearm_right": { } 
 };
 /* for you to do
 , "shoulder_left": {}  , "upperarm_left": {} , "forearm_left": {} };
