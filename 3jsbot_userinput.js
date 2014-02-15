@@ -101,11 +101,13 @@ function user_input() {
 /* CS148: user input for joint selection */
 
 function change_active_link_down() {
-    if (typeof robot.links[robot.joints[active_joint].child].children !== 'undefined') {
+	if (robot.links[robot.joints[active_joint].child].children.length != 0 && robot.joints[active_joint].child !== 'undefined'  ) {
         robot.joints[active_joint].display_geom.material.opacity = 1.0; 
+
 
         active_link = robot.joints[active_joint].child;
         active_joint = robot.links[active_link].children[0];
+
 
         robot.joints[active_joint].display_geom.material.opacity = 0.5; 
     }

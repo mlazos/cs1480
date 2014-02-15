@@ -166,7 +166,7 @@ function init_robot_joints() {
         robot.joints[x].name = x;
 		robot.links[ robot.joints[x].parent ].children.push(x); // add joint to list of link's children
 		if( robot.joints[x].child != undefined )
-			robot.joints[x].child.parent = x; 
+			robot.links[robot.joints[x].child].parent = x; 
     }
 
     // CS148: do not remove, this is used to create threejs geometries
