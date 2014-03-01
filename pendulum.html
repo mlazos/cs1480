@@ -54,11 +54,11 @@ function init() {
 
     // initialize pendulum controls
     pendulum.control = 0;
-    pendulum.desired = -Math.PI/2.5;
+    pendulum.desired = Math.PI;
     pendulum.desired_dot = 0;
 
     // initialize pendulum PID servo gains
-    pendulum.servo = {kp:0.0, kd:0.0, ki:0.0};
+    pendulum.servo = {kp:.85, kd:1.7, ki:0.03};
     accumulated_error = 0;
 
     // set time and timestep 
@@ -69,9 +69,9 @@ function init() {
     gravity = 0.01;
 
     // set method of numerical integration of dynamics
-    numerical_integrator = "euler";  // REQUIRED
+    //numerical_integrator = "euler";  // REQUIRED
     //numerical_integrator = "verlet";  // OPTIONAL
-    //numerical_integrator = "velocity verlet";  // REQUIRED
+    numerical_integrator = "velocity verlet";  // REQUIRED
     //numerical_integrator = "runge-kutta";  // OPTIONAL
 
     init_threejs_scene();
@@ -104,16 +104,24 @@ function animate() {
     if ( keyboard.pressed("q") )
         pendulum.desired += -0.05;
 
-    // key input to zero controls and let pendulum swing
+// key input to zero controls and let pendulum swing
     if ( keyboard.pressed("s") )
         pendulum.control = 0;
-
+	else
+	{
+		accumulated_error += dt* (pendulum.desired - pendulum.angle); 
+		pendulum.control = pendulum.servo['kp']*(pendulum.desired - pendulum.angle) + pendulum.servo['kd']*(pendulum.desired_dot - pendulum.angle_dot) + pendulum.servo['ki']*accumulated_error;
+    }
     // update pendulum state with integrator using current acceleration
     if (numerical_integrator === "verlet") {
         // basic verlet integration
     }
     else if (numerical_integrator === "velocity verlet") {
         // velocity version of verlet integration
+		angle_old = pendulum.angle;
+		pendulum.angle = pendulum.angle + pendulum.angle_dot * dt + 1/2 * system_acceleration(pendulum.angle, pendulum.angle_dot, t)*dt*dt;
+		pendulum.angle_dot = pendulum.angle_dot + 1/2 * dt  * (system_acceleration(pendulum.angle, pendulum.angle_dot, t) + system_acceleration(angle_old, pendulum.angle_dot, t));
+				 
     }
     else if (numerical_integrator === "runge-kutta") {
         // RK4, fourth-order Runge-Kutta integration
@@ -122,15 +130,18 @@ function animate() {
         // euler integration
 
         numerical_integrator = "euler";
+		pendulum.angle_dot = pendulum.angle_dot + dt * system_acceleration(pendulum.angle, pendulum.angle_dot, t);
+		pendulum.angle = pendulum.angle + pendulum.angle_dot*dt; 
     }
 
     // set the current state/angle of the pendulum
     pendulum.geom.rotation.y = pendulum.angle;  // threejs cylinders have their axes along the y-axis
-    pendulum.angle += Math.PI/160;  // REMOVE THIS!!! just to show how angle is ued
+    //pendulum.angle += Math.PI/160;  // REMOVE THIS!!! just to show how angle is ued
 
     // don't forget to advance time
 
-    /* output simulator variables
+	t += dt;
+    // output simulator variables
     textbar.innerHTML = 
         " t = " + t.toFixed(2) + 
         " dt = " + dt.toFixed(2) + 
@@ -140,9 +151,10 @@ function animate() {
         " u = " + pendulum.control.toFixed(2) +
         " m = " + pendulum.mass.toFixed(2) +
         " l = " + pendulum.length.toFixed(2) +
-        " integrator = " + numerical_integrator
+        " integrator = " + numerical_integrator +
+		" accum error = " + accumulated_error
     ;
-    */
+     
 
     // threejs rendering update
     renderer.render( scene, camera );
@@ -151,6 +163,7 @@ function animate() {
 
 function system_acceleration(x_current,v_current,t_current) {
     // return a_t for current pendulum state
+	return (-gravity/pendulum.length)*Math.sin(x_current) + pendulum.control/(pendulum.mass*pendulum.length^2);
 }
 
 <!-- //////////////////////////////////////////////////
