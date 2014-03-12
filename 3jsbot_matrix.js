@@ -19,8 +19,11 @@ generate_rotation_matrix_Z
 function matrix_multiply( mat1, mat2 )
 {
 	var mat1cols = mat1[0].length;
+
 	var mat1rows = mat1.length;
+	
 	var mat2cols = mat2[0].length;
+	
 	var mat2rows = mat2.length;
 	var outmat = init_matrix(mat1rows, mat2cols);
 	var accum = 0;
@@ -81,9 +84,9 @@ function vector_cross(v1, v2)
 	if( v1.length != 3 || v2.length != 3 )
 		console.log("incorrect vector dimension");
 
-	var outv;
+	var outv = new Array(3);
 	outv[0] = v1[1]*v2[2] - v1[2]*v2[1];
-	outv[1] = v1[0]*v2[2] - v1[2]*v2[0];
+	outv[1] = v1[2]*v2[0] - v1[0]*v2[2];
 	outv[2] = v1[0]*v2[1] - v1[1]*v2[0];
 
 	return outv;

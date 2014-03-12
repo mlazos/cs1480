@@ -43,19 +43,19 @@
 <!-- 3jsbot includes -->
 <script src="3jsbot.js"></script> 
 <!--
-<script src="3jsbot_forward_kinematics.js"></script> 
-<script src="3jsbot_controls.js"></script> 
-<script src="3jsbot_pd_control.js"></script> 
+
+
 <script src="3jsbot_inverse_kinematics.js"></script> 
 <script src="3jsbot_potential_field.js"></script> 
 <script src="3jsbot_rrt_connect.js"></script> 
-<script src="3jsbot_matrix.js"></script> 
-<script src="3jsbot_quaternion.js"></script> 
 -->
+<script src="3jsbot_controls.js"></script> 
 <script src="3jsbot_forward_kinematics.js"></script> 
 <script src="3jsbot_threejs.js"></script> 
 <script src="3jsbot_userinput.js"></script> 
 <script src="3jsbot_matrix.js"></script> 
+<script src="3jsbot_quaternion.js"></script> 
+<script src="3jsbot_pd_control.js"></script> 
 <script>
 
 //////////////////////////////////////////////////
@@ -159,9 +159,11 @@ function init_robot_joints() {
     var x,tempmat,link;
 	for ( link in robot.links )
 		robot.links[link].children = [];
-
+	
     for (x in robot.joints) {
-
+		robot.joints[x].servo = {};
+		robot.joints[x].p_desired = 0;	
+		robot.joints[x].control = 0;
         // give the joint its name as an id
         robot.joints[x].name = x;
 		robot.links[ robot.joints[x].parent ].children.push(x); // add joint to list of link's children
@@ -265,7 +267,7 @@ function my_animate() {
     // ROBOT DYNAMICS 
 
     // apply robot controls to robot configuration (assuming pure kinematics for now)
-    //robot_apply_controls();
+    robot_apply_controls();
 
     // DRAW ROBOT 
 
@@ -280,11 +282,11 @@ function my_animate() {
     // UPDATE AUTONOMOUS CONTROLS 
 
     // proportional-derivative control 
-    /*
+    
     if (update_pd)
         robot_pd_control();
     update_pd = false;
-    */
+    
 
     // inverse kinematics
     //robot_inverse_kinematics(ik_target, "forearm_right_yaw", ik_local);
