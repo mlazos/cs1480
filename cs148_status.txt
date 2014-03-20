@@ -8,4 +8,8 @@
  Assignment 2: CHECK 
  good work 
  
+ Assignment 3: CHECK
+ comment: nice work tuning gains
+ comment: why is euler integrator stable?
+ 
 
