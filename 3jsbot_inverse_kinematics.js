@@ -12,7 +12,7 @@ robot_inverse_kinematics
 iterate_inverse_kinematics
 */
 
-robot_inverse_kinematics(target_pos, endeffector_joint, endeffector_local_pos) {
+function robot_inverse_kinematics(target_pos, endeffector_joint, endeffector_local_pos) {
     // compute joint angle controls to move location on specified link to Cartesian location
     if (update_ik) {
         //iterate_inverse_kinematics(target_pos, endeffector_joint, endeffector_local_pos);
@@ -26,6 +26,5 @@ robot_inverse_kinematics(target_pos, endeffector_joint, endeffector_local_pos) {
     update_ik = false;
 
 }
-
 
 

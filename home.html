@@ -1,4 +1,5 @@
 
+
 <!--
 
      3jsbot code stencil
@@ -35,10 +36,12 @@
 <!-- definition of robot kinematics -->
 <!-- CS148: change this script pointer to change the robot definition -->
 <!--
-<script src="robots/robot_urdf_example.js"></script> 
+<script src="robots/robot_br2.js"></script> 
+
 <script src="robots/robot_crawler.js"></script> 
 -->
-<script src="robots/robot_br2.js"></script> 
+
+<script src="robots/robot_urdf_example.js"></script> 
  
 <!-- 3jsbot includes -->
 <script src="3jsbot.js"></script> 
@@ -162,7 +165,8 @@ function init_robot_joints() {
 	
     for (x in robot.joints) {
 		robot.joints[x].servo = {};
-		robot.joints[x].p_desired = 0;	
+		robot.joints[x].p_desired = 0;
+		robot.joints[x].angle = 0;	
 		robot.joints[x].control = 0;
         // give the joint its name as an id
         robot.joints[x].name = x;
@@ -171,7 +175,7 @@ function init_robot_joints() {
 			robot.links[robot.joints[x].child].parent = x; 
     }
 
-    // CS148: do not remove, this is used to create threejs geometries
+   // CS148: do not remove, this is used to create threejs geometries
     init_robot_joints_geoms();
 }
 
