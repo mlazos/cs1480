@@ -59,7 +59,7 @@ robot.joints.clavicle_right_yaw.angle = 0;//-Math.PI/2;
 robot.joints.shoulder_right_yaw = {parent:"clavicle_right", child:"shoulder_right"};
 robot.joints.shoulder_right_yaw.origin = {xyz: [0.0,-0.15,0.85], rpy:[Math.PI/2,0,0]};
 robot.joints.shoulder_right_yaw.axis = [0.0,0.707,0.707]; 
-robot.joints.shoulder_right_yaw.angle = -Math.PI/2;
+robot.joints.shoulder_right_yaw.angle = 0;// -Math.PI/2;
 
 robot.joints.upperarm_right_pitch = {parent:"shoulder_right", child:"upperarm_right"};
 robot.joints.upperarm_right_pitch.origin = {xyz: [0.0,0.0,0.7], rpy:[0,0,0]};
