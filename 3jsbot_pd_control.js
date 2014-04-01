@@ -7,7 +7,6 @@ function robot_pd_control ()
 {
 	
 	var curdate = new Date();
-	console.log(curdate.getSeconds()/60);
 	for(var x in robot.joints )
 	{
 		robot.joints[x].servo.p_desired = (curdate.getSeconds() / 60)*2*Math.PI;

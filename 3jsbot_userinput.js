@@ -56,7 +56,6 @@ function user_input() {
         robot.control.rpy[1] += 0.1;
     }
     if ( keyboard.pressed("d") ) {  // turn
-        console.log("hit");
 		robot.control.rpy[1] += -0.1;
     }
 

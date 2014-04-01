@@ -38,7 +38,7 @@ function matrix_multiply( mat1, mat2 )
 		for( var c = 0; c < mat2cols; c++ )
 		{
 			accum = 0;
-			for( var sop = 0; sop < mat1rows; sop++)
+			for( var sop = 0; sop < mat2rows; sop++)
 			{
 				accum += mat1[r][sop] * mat2[sop][c];
 			}
