@@ -61,7 +61,7 @@ function iterate_inverse_kinematics( target_xform, endeffector_joint, end_xform)
 		jacobian = fill_jacobian_col(i, jacobian, joint_chain[i], On);
 	}
 
-	var pseudo = 0; 
+	var pseudo = 1; 
 	if( pseudo )
 	{
 		console.log(jacobian);
