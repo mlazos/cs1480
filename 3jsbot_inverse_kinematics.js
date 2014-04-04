@@ -64,23 +64,15 @@ function iterate_inverse_kinematics( target_xform, endeffector_joint, end_xform)
 	var pseudo = 0; 
 	if( pseudo )
 	{
+		console.log(jacobian);
 		var inverted_jacobian_transpose = numeric.inv( numeric.dot( jacobian, matrix_transpose(jacobian) ) );
 		var delta_theta = numeric.dot( numeric.dot(matrix_transpose(jacobian), inverted_jacobian_transpose), delta_x );	
 	}
 	else
 	{
-		console.log(matrix_transpose(jacobian));
-		console.log(delta_x);
 		var delta_theta = numeric.dot( matrix_transpose(jacobian), delta_x );
 	}
-	/*	
-	console.log("x");
-	console.log(delta_x);
-	console.log("jacobian");
-	console.log(numeric.dot(matrix_transpose(jacobian),inverted_jacobian_transpose) );
-	console.log("theta");
-	console.log(delta_theta);
-	*/
+	
 	for( var i = 0; i < joint_chain.length; i++ )
 	{
 		robot.joints[joint_chain[i]].control = alpha * delta_theta[i][0];
@@ -108,28 +100,38 @@ function gen_kinematic_chain_link( link, joint_chain  )
 function fill_jacobian_col( col, jacobian, joint, On  )
 {
 	var joint_vector = new Array(3);
-	joint_vector[0] = robot.joints[joint].xform[0][3];
-	joint_vector[1] = robot.joints[joint].xform[1][3];
-	joint_vector[2] = robot.joints[joint].xform[2][3];
+	joint_vector[0] = robot.joints[joint].xform[0][3] -  robot.links["base"].xform[0][3];
+	joint_vector[1] = robot.joints[joint].xform[1][3] - robot.links["base"].xform[1][3];
+	joint_vector[2] = robot.joints[joint].xform[2][3] - robot.links["base"].xform[2][3];
 	
-	var diff_vector = new Array(3);
-	diff_vector[0] = On[0] - joint_vector[0];
-	diff_vector[1] = On[1] - joint_vector[1];
-	diff_vector[2] = On[2] - joint_vector[2];
+	//this is the difference between On and the vector from the base to the joint
+	var diff_xform  = [[On[0] - joint_vector[0]],
+					 [On[1] - joint_vector[1]],
+					 [On[2] - joint_vector[2]],
+						[1]];
+    
+
+	//transform difference vector to global origin
+	//diff_xform = numeric.dot( generate_translation_matrix( -robot.joints[joint].origin["xyz"][0], -robot.joints[joint].origin["xyz"][1], -robot.joints[joint].origin["xyz"][2] ),diff_xform ); 
+	
 
 	var axis = robot.joints[joint].axis;
 	var axis_xform = numeric.dot(robot.joints[joint].xform, [[axis[0]],[axis[1]],[axis[2]],[1]]);
 	
-	//diff_vector[0] = diff_vector[0] - robot.joints[joint].origin["xyz"][0]; 
-	//diff_vector[1] = diff_vector[1] - robot.joints[joint].origin["xyz"][1];	
-	//diff_vector[2] = diff_vector[2] - robot.joints[joint].origin["xyz"][2];
+	//transform axis vector to global origin
+	//axis_xform = numeric.dot( generate_translation_matrix( -robot.joints[joint].origin["xyz"][0], -robot.joints[joint].origin["xyz"][1], -robot.joints[joint].origin["xyz"][2] ), axis_xform);	
 
 	var axis_v = new Array(3);
-	axis_v[0]  = axis_xform[0][0];// - robot.joints[joint].origin["xyz"][0];
-	axis_v[1]  = axis_xform[1][0];// - robot.joints[joint].origin["xyz"][1];
-	axis_v[2]  = axis_xform[2][0];// - robot.joints[joint].origin["xyz"][2];
+	axis_v[0]  = axis_xform[0][0];
+	axis_v[1]  = axis_xform[1][0];
+	axis_v[2]  = axis_xform[2][0];
 
-	var j_col = vector_cross( axis_v, diff_vector );
+	var diff_v = new Array(3);
+	diff_v[0] = diff_xform[0][0];
+	diff_v[1] = diff_xform[1][0];
+	diff_v[2] = diff_xform[2][0];
+
+	var j_col = vector_cross( axis_v, diff_v );
 	jacobian[0][col] = j_col[0];
 	jacobian[1][col] = j_col[1];
 	jacobian[2][col] = j_col[2];
