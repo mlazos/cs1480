@@ -45,26 +45,42 @@ function iterate_inverse_kinematics( target_xform, endeffector_joint, end_xform)
 	var delta_x = [[target_xform[0][3] - end_xform[0][3]],
 				   [target_xform[1][3] - end_xform[1][3]],
 				   [target_xform[2][3] - end_xform[2][3]]];
-	var alpha = 0.05;
+	var alpha = 0.1;
 	var joint_chain_start = [];
 	var joint_chain = gen_kinematic_chain_joint( endeffector_joint, joint_chain_start );
-	var jacobian = init_matrix( 3, joint_chain.length ); 	
-	console.log(joint_chain);	
+	var jacobian = init_matrix( 3, joint_chain.length );
 	On = new Array(3);
-	On[0] = end_xform[0][3];
-	On[1] = end_xform[1][3];
-	On[2] = end_xform[2][3];
+	
+	var base_xform = robot.links["base"].xform;
+	On[0] = end_xform[0][3] - base_xform[0][3];
+	On[1] = end_xform[1][3] - base_xform[1][3];
+	On[2] = end_xform[2][3] - base_xform[2][3];
 	
 	for( var i = 0; i < joint_chain.length; i++ )
 	{
 		jacobian = fill_jacobian_col(i, jacobian, joint_chain[i], On);
 	}
 
-	console.log(jacobian);
-	console.log(matrix_multiply( jacobian, matrix_transpose(jacobian) ) );
-	var inverted_jacobian_transpose = numeric.inv( matrix_multiply( jacobian, matrix_transpose(jacobian) ) );
-	var delta_theta = matrix_multiply( matrix_multiply(matrix_transpose(jacobian), inverted_jacobian_transpose), delta_x );	
-
+	var pseudo = 0; 
+	if( pseudo )
+	{
+		var inverted_jacobian_transpose = numeric.inv( numeric.dot( jacobian, matrix_transpose(jacobian) ) );
+		var delta_theta = numeric.dot( numeric.dot(matrix_transpose(jacobian), inverted_jacobian_transpose), delta_x );	
+	}
+	else
+	{
+		console.log(matrix_transpose(jacobian));
+		console.log(delta_x);
+		var delta_theta = numeric.dot( matrix_transpose(jacobian), delta_x );
+	}
+	/*	
+	console.log("x");
+	console.log(delta_x);
+	console.log("jacobian");
+	console.log(numeric.dot(matrix_transpose(jacobian),inverted_jacobian_transpose) );
+	console.log("theta");
+	console.log(delta_theta);
+	*/
 	for( var i = 0; i < joint_chain.length; i++ )
 	{
 		robot.joints[joint_chain[i]].control = alpha * delta_theta[i][0];
@@ -102,9 +118,18 @@ function fill_jacobian_col( col, jacobian, joint, On  )
 	diff_vector[2] = On[2] - joint_vector[2];
 
 	var axis = robot.joints[joint].axis;
+	var axis_xform = numeric.dot(robot.joints[joint].xform, [[axis[0]],[axis[1]],[axis[2]],[1]]);
+	
+	//diff_vector[0] = diff_vector[0] - robot.joints[joint].origin["xyz"][0]; 
+	//diff_vector[1] = diff_vector[1] - robot.joints[joint].origin["xyz"][1];	
+	//diff_vector[2] = diff_vector[2] - robot.joints[joint].origin["xyz"][2];
 
-	var j_col = vector_cross( axis, diff_vector );
+	var axis_v = new Array(3);
+	axis_v[0]  = axis_xform[0][0];// - robot.joints[joint].origin["xyz"][0];
+	axis_v[1]  = axis_xform[1][0];// - robot.joints[joint].origin["xyz"][1];
+	axis_v[2]  = axis_xform[2][0];// - robot.joints[joint].origin["xyz"][2];
 
+	var j_col = vector_cross( axis_v, diff_vector );
 	jacobian[0][col] = j_col[0];
 	jacobian[1][col] = j_col[1];
 	jacobian[2][col] = j_col[2];
