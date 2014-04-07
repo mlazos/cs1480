@@ -14,6 +14,7 @@
  
  Assignment 4: UNCHECKED
  error: br2 test cases has incorrect initial pose 
+ error: only base displayed for non-br2 test cases
  regrade: no change
  
 
