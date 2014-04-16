@@ -12,9 +12,10 @@
  comment: nice work tuning gains
  comment: why is euler integrator stable?
  
- Assignment 4: UNCHECKED
+ Assignment 4: CHECK
  error: br2 test cases has incorrect initial pose 
  error: only base displayed for non-br2 test cases
  regrade: no change
+ regrade2: working
  
 
