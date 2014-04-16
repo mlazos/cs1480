@@ -50,7 +50,6 @@ function robot_rrt_planner_init() {
     for (i=0;i<q_goal_config.length;i++) q_goal_config[i] = 0;
 
     // CS148: add necessary RRT initialization here
-
     // make sure the rrt iterations are not running faster than animation update
     cur_time = Date.now();
 
@@ -88,7 +87,6 @@ function tree_init(q) {
 
     // maintain index of newest vertex added to tree
     tree.newest = 0;
-
     return tree;
 }
 
@@ -126,7 +124,7 @@ CS148: reference code has functions for:
     path_dfs
 */
 
-function tree_add_vertex( parent_index, q )
+function tree_add_vertex(tree, parent_index, q )
 {
 	tree.newest = tree.newest + 1;
 	tree.vertices[tree.newest] = {};
@@ -136,26 +134,56 @@ function tree_add_vertex( parent_index, q )
 	tree.vertices[tree.newest].edges = [];
 	draw_2D_configuration(q);
 	draw_2D_edge_configurations(q, tree.vertices[parent_index].vertex);
-	return tree;	
 }
 
-function rrt_connect( )
+function rrt_connect_iterate()
 {
-	var stop = 0;
-	while( stop != 2 ) // not equal to advance
+	if( !finished )
 	{
-		stop = rrt_extend(q);
+		var q_rand = random_config();
+		console.log("random");
+		console.log(q_rand);
+		if(rrt_extend(treeA, q_rand))
+		{
+			var q_new = treeA.vertices[treeA.newest].vertex;
+			if( rrt_connect(treeB, q_new) )
+			{
+				//finished
+				finished = 1;
+				path = generate_path(treeA.vertices[treeA.newest], treeB.vertices[treeB.newest]);		
+				draw_highlighted_path(path);
+			}
+		}
+
+		//swap treeA and treeB	
+		var temp = treeA;
+		treeA = treeB;
+		treeB = temp;
 	}
 }
 
-function rrt_extend(q)
+
+function rrt_connect(tree, q )
+{
+	var stop = 2;
+	for( var i = 0; i < 50 && stop == 2; i++ )
+	{
+		var start = Date.now();
+		while( Date.now() - start < 10 ){}
+		stop = rrt_extend(tree, q);
+	}
+	return stop; //is 1 or 0 indicating reached or trapped
+}
+
+function rrt_extend(tree, q)
 {
 	var q_near_index = nearest_neighbor(q, tree);
 	var q_near = tree.vertices[q_near_index].vertex;
 	var q_new = new_config(q, q_near);
+	
 	if( !collision_test(q_new) )
 	{
-		tree = tree_add_vertex(q_near_index, q_new);
+		tree_add_vertex(tree, q_near_index, q_new);
 		if( config_equals(q_new, q) )
 		{
 			return 1;  // 1 for Reached
@@ -172,14 +200,17 @@ function rrt_extend(q)
 	
 }
 
+
 function config_equals( q1, q2 )
 {
-	return q1[0] == q2[0] && q1[1] == q2[1];
+	var cond = (q1[0] === q2[0]) && (q1[1] === q2[1]);
+	console.log(cond);
+	return cond;
 }
 
 function new_config(q, q_near)
 {
-	epsilon = .3;
+	epsilon = .1;
 	if( norm2d(q, q_near) < epsilon )
 	{
 		return q;
@@ -188,7 +219,7 @@ function new_config(q, q_near)
 	{
 		var delta_x = q[0] - q_near[0];
 		var delta_y = q[1] - q_near[1];
-		var angle = Math.atan(delta_y/delta_x);
+		var angle = determine_angle(delta_x, delta_y);
 		return [q_near[0] + Math.cos(angle) * epsilon, q_near[1] + Math.sin(angle) * epsilon, q[2], q[3], q[4], q[5] ];	
 	}
 }
@@ -200,10 +231,12 @@ function norm2d( q1, q2 )
 
 function random_config()
 {
-	return [Math.random()*6 - 1.1, Math.random()*6 - 1.1, Math.random(), Math.random(), Math.random(), Math.random()];
+	var config =  [Math.random()*6.2 - 1.1, Math.random()*6.2 - 1.1, Math.random(), Math.random(), Math.random(), Math.random()];
+	console.log(config);
+	return config;
 }
 
-function nearest_neighbor( q  )
+function nearest_neighbor( q, tree  )
 {
 	var min_dist = Infinity;
 	var min_vertex = 0;
@@ -219,5 +252,44 @@ function nearest_neighbor( q  )
 	}
 	
 	return min_vertex;
+}
+
+function determine_angle( delta_x, delta_y )
+{
+	var val = delta_y/delta_x;
+
+	if( delta_x < 0 && delta_y < 0)
+		return Math.atan(val) + Math.PI;
+
+	if( delta_x > 0 && delta_y < 0)
+		return Math.atan(val);
+
+
+	if( delta_x < 0 && delta_y > 0)
+		return Math.atan(val) + Math.PI;
+		
+	if( delta_x > 0 && delta_y > 0);
+		return Math.atan(val);
+
+}
+
+function generate_path( vA, vB )
+{
+	pathA = [];
+	pathB = [];
+	while( vA.parent != -1 )
+	{
+		pathA.push(vA);
+		vA = treeA.vertices[vA.parent];
+	}
+	
+	while( vB.parent != -1 )
+	{
+		pathB.push(vB);
+		vB = treeB.vertices[vB.parent];
+	}
+	pathA.reverse();
+	return pathA.concat( pathB );
+
 }
 
