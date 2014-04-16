@@ -1,5 +1,6 @@
 
 
+
 <!--
 
      3jsbot code stencil
@@ -49,11 +50,12 @@
 <script src="3jsbot.js"></script> 
 <!--
 
-
-
 <script src="3jsbot_potential_field.js"></script> 
 <script src="3jsbot_rrt_connect.js"></script> 
 -->
+<script src="3jsbot_collision.js"></script>
+<script src="3jsbot_rrt_connect.js"></script>
+<script src="worlds/world_basic.js"></script>
 <script src="3jsbot_controls.js"></script> 
 <script src="3jsbot_inverse_kinematics.js"></script> 
 <script src="3jsbot_forward_kinematics.js"></script> 
@@ -310,7 +312,7 @@ function my_animate() {
     // if we have time this semester
     //robot_potential_field(x_desired);
 
-
+	robot_iscollision();
 }
 
 

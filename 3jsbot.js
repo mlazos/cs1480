@@ -138,7 +138,8 @@ function init_robot_links_geoms() {
         //material = new THREE.MeshBasicMaterial( { color: 0x0000ff, transparent: true, opacity: 0.5 } );
         material = new THREE.MeshLambertMaterial( { color: 0x0000ff, transparent: true, opacity: 0.7 } );
         robot.links[x].geom = new THREE.Mesh( links_geom[x], material);
-
+		robot.links[x].bbox = new THREE.Box3;
+		robot.links[x].bbox = robot.links[x].bbox.setFromPoints(robot.links[robot.base].geom.geometry.vertices);
         // add to threejs scene graph (where kinematics are maintained independently)
         scene.add(robot.links[x].geom);
     }
