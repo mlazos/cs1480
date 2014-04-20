@@ -106,7 +106,7 @@ function robot_collision_forward_kinematics (q) {
 function traverse_collision_forward_kinematics_link(link,mstack,q) {
 
     // test collision by transforming obstacles in world to link space
-    mstack_inv = numeric.inv(mstack);
+    mstack_inv = affine_inv(mstack);
 /*
     mstack_inv = numeric.inv(mstack);
 */
@@ -148,8 +148,8 @@ function traverse_collision_forward_kinematics_link(link,mstack,q) {
     }
 
     // recurse child joints for collisions, returning true if child returns collision
-    if (typeof link.children !== 'undefined') { // return if there are no children
-        for (i=0;i<link.children.length;i++) {
+    if (link.children !== []) { // return if there are no children
+		for (i=0;i<link.children.length;i++) {
             if (traverse_collision_forward_kinematics_joint(robot.joints[link.children[i]],mstack,q))
                 return true;
         }
@@ -163,7 +163,6 @@ function traverse_collision_forward_kinematics_link(link,mstack,q) {
 function traverse_collision_forward_kinematics_joint(joint,mstack,q) {
 
     var mstack_top = matrix_multiply(mstack,generate_identity(4));
-
     // compute matrix transform origin of joint in the local space of the parent link
     var local_xform = matrix_multiply(generate_translation_matrix(joint.origin.xyz[0],joint.origin.xyz[1],joint.origin.xyz[2]),matrix_multiply(matrix_multiply(generate_z_rotation(joint.origin.rpy[2]),generate_y_rotation(joint.origin.rpy[1])),generate_x_rotation(joint.origin.rpy[0])));
 
@@ -172,12 +171,12 @@ function traverse_collision_forward_kinematics_joint(joint,mstack,q) {
 
     // transform motor rotation by quaternion for axis-angle joint rotation
     var tempvec = [joint.axis[0],joint.axis[1],joint.axis[2]]; 
-    var tempquat = quaternion_from_axisangle(tempvec,q[q_names[joint.name]]);
+    var tempquat = quaternion_from_axisangle(q[q_names[joint.name]], tempvec);
     var joint_local_quat = quaternion_normalize(tempquat);
 
     // push joint angle transform to the top of the matrix stack
     var joint_local_xform = quaternion_to_rotation_matrix(joint_local_quat);
-    var mstack_top = matrix_multiply(mstack_origin_top,joint_local_xform); 
+	var mstack_top = matrix_multiply(mstack_origin_top,joint_local_xform); 
 
     // recursively traverse child link with the current_xform being top of matrix stack 
     return traverse_collision_forward_kinematics_link(robot.links[joint.child],mstack_top,q);
@@ -185,4 +184,26 @@ function traverse_collision_forward_kinematics_joint(joint,mstack,q) {
 }
 
 
+function affine_inv( m )
+{
+	A = [ [m[0][0], m[0][1], m[0][2]],
+		  [m[1][0], m[1][1], m[1][2]],
+		  [m[2][0], m[2][1], m[2][2]] ];
+	A_inv  = numeric.inv(A);
+	b = [ [m[0][3]],[m[1][3]],[m[2][3]] ];
 
+	b_new = numeric.dot( A_inv, b );
+
+	out = [ [A_inv[0][0], A_inv[0][1], A_inv[0][2], -b_new[0][0] ],
+		    [A_inv[1][0], A_inv[1][1], A_inv[1][2], -b_new[1][0] ],
+		    [A_inv[2][0], A_inv[2][1], A_inv[2][2], -b_new[2][0] ],
+			[0,0,0,1] ];
+	return out;
+ 
+
+
+
+
+
+
+}

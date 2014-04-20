@@ -51,10 +51,10 @@
 <!--
 
 <script src="3jsbot_potential_field.js"></script> 
-<script src="3jsbot_rrt_connect.js"></script> 
+<script src="rrt_canvas/3jsbot_rrt_connect.js"></script> 
 -->
 <script src="3jsbot_collision.js"></script>
-<script src="3jsbot_rrt_connect.js"></script>
+<script src="rrt_canvas/3jsbot_rrt_connect.js"></script>
 <script src="worlds/world_basic.js"></script>
 <script src="3jsbot_controls.js"></script> 
 <script src="3jsbot_inverse_kinematics.js"></script> 
@@ -108,7 +108,7 @@ function my_init() {
     for (i=0;i<my_array.length;i++) {
         console.log(my_array[i]);
     }
-
+	robot_path_traverse_idx = 0;
     textbar = document.createElement('div');
     textbar.style.position = 'absolute';
     //textbar.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
@@ -120,7 +120,7 @@ function my_init() {
     textbar.style.top = 10 + 'px';
     textbar.style.left = 10 + 'px';
     document.body.appendChild(textbar);
-
+	robot_set_planning_scene();
     // CS148: INITIAL GETTING FAMILIAR CODE  (END HERE)
 
 }
@@ -135,6 +135,9 @@ function init_robot() {
 
     // initialize robot joints and create threejs mesh objects for robot joints and form kinematic hiearchy
     init_robot_joints();
+
+	generating_motion_plan = false;
+	generate_motion_plan = false;
 
     // initialize inverse kinematics target location 
     ik_target = [[0],[0.8],[1.0],[1]];
@@ -302,8 +305,18 @@ function my_animate() {
 
     robot_inverse_kinematics(ik_target, "forearm_right_yaw", [[0],[0],[0.5],[1]]);
     // configuration space motion planning
-    //robot_rrt_connect(q_desired);
-
+    if ((generate_motion_plan) && (!generating_motion_plan)) {
+        robot_rrt_planner_init();
+        generating_motion_plan = true;
+        generate_motion_plan = false;
+    }
+    if (generating_motion_plan) {
+        robot_rrt_planner_iterate();
+        if (finished) {
+            //alert("home: reached");
+            generating_motion_plan = false;
+        }
+    }	
     // Monte Carlo Localization (needs display map and simulated range sensing)
     // if we have time this semester
     //robot_potential_field(x_desired);
