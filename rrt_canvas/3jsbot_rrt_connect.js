@@ -306,6 +306,7 @@ function generate_path( vA, vB )
 		vA = treeA.vertices[vA.parent];
 	}
 	vA.geom.material.color = {r:1,g:0,b:0};	
+	pathA.push(vA);
 	while( vB.parent != -1 )
 	{
 		vB.geom.material.color = {r:1,g:0,b:0};
@@ -313,6 +314,7 @@ function generate_path( vA, vB )
 		vB = treeB.vertices[vB.parent];
 	}
 	vB.geom.material.color = {r:1,g:0,b:0};
+	pathB.push(vB);
 	pathA.reverse();
 	return pathA.concat( pathB );
 
