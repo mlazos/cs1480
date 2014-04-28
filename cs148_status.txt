@@ -21,4 +21,8 @@
  Assignment 5: CHECK
  good work
  
+ Assignment 6: CHECK
+ good work
+ comment: poses in plan look to be in reverse order
+ 
 
